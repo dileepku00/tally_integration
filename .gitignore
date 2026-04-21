@@ -1,0 +1,13 @@
+backend/build/
+backend/target/
+backend/lib/
+backend/*.class
+backend/src/main/java/com/tally/*.class
+backend/*.txt
+backend/settings.json
+backend/ledger_meta.json
+backend/src/main/java/com/tally/*.bak
+backend/src/main/java/com/tally/*.full
+.vscode/
+frontend/.vscode/
+frontend/node_modules/

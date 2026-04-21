@@ -1,47 +1,89 @@
-# Tally Ledger Dashboard
+# Tally Integration Utility
 
-A simple utility to fetch all ledgers from Tally ERP 9, display them in a dashboard with balances and groups, and allow assigning tasks and adding comments with dates.
+This utility connects to a running Tally server, lets the user enter the Tally IP and port, loads the running firms, and shows a firm-wise ledger dashboard with pendency tracking.
+
+## What Changed
+
+- Tally connection is now configurable from the UI using host and port.
+- Tally can be launched from the UI using the installed executable path.
+- Tally connection can be tested from the UI before loading firms.
+- Firms can be fetched from the running Tally instance and selected from a dropdown.
+- Account team status is controlled through a fixed dropdown:
+  - `work in progress`
+  - `pending for approval`
+  - `closed`
+  - `balance reconcilled`
+- Pendency is shown with summary cards and a cleaner chart-style view.
+- The Java backend now serves the built frontend, which makes Windows setup simpler.
 
 ## Prerequisites
 
 - Java 11 or higher
-- Maven
-- Node.js and npm
-- Tally ERP 9 running and accessible via HTTP/XML API (default: localhost:9000)
+- Node.js and npm for building the frontend
+- Tally running with XML/HTTP enabled
 
-## Setup
+## First-Time Setup
 
-### Backend (Java)
+### 1. Build the frontend
 
-1. Navigate to `backend` directory.
-2. Install dependencies: `mvn install`
-3. Run the server: `mvn exec:java -Dexec.mainClass="com.tally.App"`
+```powershell
+cd "d:\git hub\tally_integration\frontend"
+npm install
+npm run build
+```
 
-### Frontend (React)
+### 2. Start the dashboard
 
-1. Navigate to `frontend` directory.
-2. Install dependencies: `npm install`
-3. Start the development server: `npm run dev`
+```powershell
+cd "d:\git hub\tally_integration"
+start-dashboard.bat
+```
 
-## Usage
+Then open `http://localhost:8090`.
 
-1. Ensure Tally is running and accessible.
-2. Start the backend server.
-3. Start the frontend server.
-4. Open the frontend in browser (usually http://localhost:5173).
-5. Click "Refresh from Tally" to fetch ledgers.
-6. Edit assigned to and comments in the table; changes are saved automatically.
+## Development Mode
 
-## Configuration
+### Backend
 
-- Tally URL: Set `TALLY_URL` environment variable if Tally is not on `http://localhost:9000`. Example: `set TALLY_URL=http://localhost:9002`
-- Backend port: Set `BACKEND_PORT` before starting both backend and frontend if port 8080 is unavailable. Example:
-  - `set BACKEND_PORT=8090`
-  - Start backend and frontend in the same terminal session
-- Data storage: Ledgers are stored in `backend/ledgers.json`.
+```powershell
+cd "d:\git hub\tally_integration\backend"
+run.bat
+```
+
+### Frontend
+
+```powershell
+cd "d:\git hub\tally_integration\frontend"
+npm run dev
+```
+
+The Vite frontend proxies `/api` calls to the backend.
+
+### One-click development start
+
+```powershell
+cd "d:\git hub\tally_integration"
+start-dev.bat
+```
+
+This opens two Windows terminals:
+- backend server
+- frontend Vite server
+
+Open the localhost URL printed by the frontend terminal, usually `http://localhost:5173`.
+The dev script starts the backend on port `8090` to avoid conflicts with older local servers.
+
+## Data Files
+
+- `backend/settings.json`
+  - stores Tally host, port, and selected firm
+- `backend/ledger_meta.json`
+  - stores editable follow-up data per firm and date
+- `backend/ledgers.json`
+  - legacy fallback data if metadata has not been created yet
 
 ## Notes
 
-- Balances are fetched from Trial Balance report.
-- Groups are from Masters.
-- Only ledgers with non-zero balances are shown.
+- If Tally is unavailable, the backend falls back to saved data, then sample data.
+- The firm list depends on what the running Tally instance returns for company export.
+- The dashboard is optimized for Windows users who want a simpler start flow.
